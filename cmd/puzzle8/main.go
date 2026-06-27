@@ -3,17 +3,20 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/fkvivid/puzzle8/internal/game"
 	"github.com/fkvivid/puzzle8/internal/solver"
+	"github.com/fkvivid/puzzle8/internal/tui"
 )
 
 func printHelp() {
 	fmt.Println("Usage:")
-	fmt.Println("  eighth-puzzle")
-	fmt.Println("  eighth-puzzle play")
-	fmt.Println("  eighth-puzzle solve [--bfs|--astar|--greedy] [--auto]")
-	fmt.Println("  eighth-puzzle help")
+	fmt.Println("  puzzle8")
+	fmt.Println("  puzzle8 play")
+	fmt.Println("  puzzle8 solve [--bfs|--astar|--greedy] [--auto]")
+	fmt.Println("  puzzle8 help")
 }
 
 func parseAlgorithm(args []string) solver.Algorithm {
@@ -40,15 +43,23 @@ func hasFlag(args []string, flag string) bool {
 	return false
 }
 
+func runTUI() {
+	p := tea.NewProgram(tui.NewModel(), tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
+}
+
 func main() {
 	if len(os.Args) == 1 {
-		game.New().Run()
+		runTUI()
 		return
 	}
 
 	switch os.Args[1] {
 	case "play":
-		game.New().Run()
+		runTUI()
 
 	case "solve":
 		args := os.Args[2:]
@@ -60,7 +71,13 @@ func main() {
 		solver.PrintResult(result, algo)
 
 		if auto && result.Found {
-			g.PlayMoves(result.Moves)
+			for _, move := range result.Moves {
+				fmt.Println(g.Board)
+				fmt.Printf(">> %s\n", move)
+				g.Move(move)
+				time.Sleep(400 * time.Millisecond)
+			}
+			fmt.Println(g.Board)
 		}
 		if !result.Found {
 			os.Exit(1)

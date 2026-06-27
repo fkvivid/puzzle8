@@ -1,13 +1,10 @@
 package game
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 
 	"github.com/fkvivid/puzzle8/internal/board"
-	"github.com/fkvivid/puzzle8/internal/solver"
-	"github.com/fkvivid/puzzle8/internal/terminal"
 )
 
 type Game struct {
@@ -50,102 +47,29 @@ func (g *Game) TryMove(drow, dcol int) bool {
 	return true
 }
 
-func (g *Game) HandleKey(k terminal.Key) {
-	switch k {
-	case terminal.KeyUp:
-		g.TryMove(-1, 0)
-	case terminal.KeyDown:
-		g.TryMove(1, 0)
-	case terminal.KeyLeft:
-		g.TryMove(0, -1)
-	case terminal.KeyRight:
-		g.TryMove(0, 1)
-	}
-}
-
-func (g *Game) PlayMoves(moves []board.Dir) {
-	for _, m := range moves {
-		terminal.ClearScreen()
-		fmt.Println(g.Board.String())
-		fmt.Printf(">> %s\n", m)
-		switch m {
-		case board.Up:
-			g.TryMove(-1, 0)
-		case board.Down:
-			g.TryMove(1, 0)
-		case board.Left:
-			g.TryMove(0, -1)
-		case board.Right:
-			g.TryMove(0, 1)
-		}
-		time.Sleep(400 * time.Millisecond)
-	}
-}
-
-func (g *Game) runSolver(algo solver.Algorithm, autoPlay bool) {
-	result := solver.Solve(g.Board, algo)
-	solver.PrintResult(result, algo)
-
-	if autoPlay && result.Found {
-		fmt.Println("\nAuto-playing...")
-		terminal.WaitEnter()
-		g.PlayMoves(result.Moves)
-	}
-}
-
-func (g *Game) handleCommand(line string) {
-	switch line {
-	case "help":
-		fmt.Println("Commands:")
-		fmt.Println("  solve-bfs")
-		fmt.Println("  solve-astar")
-		fmt.Println("  solve-greedy")
-		fmt.Println("  auto-bfs")
-		fmt.Println("  auto-astar")
-		fmt.Println("  auto-greedy")
-		fmt.Println("  help")
-	case "solve-bfs":
-		g.runSolver(solver.BFS, false)
-	case "solve-astar":
-		g.runSolver(solver.AStar, false)
-	case "solve-greedy":
-		g.runSolver(solver.Greedy, false)
-	case "auto-bfs":
-		g.runSolver(solver.BFS, true)
-	case "auto-astar":
-		g.runSolver(solver.AStar, true)
-	case "auto-greedy":
-		g.runSolver(solver.Greedy, true)
+func (g *Game) Move(dir board.Dir) bool {
+	switch dir {
+	case board.Up:
+		return g.TryMove(-1, 0)
+	case board.Down:
+		return g.TryMove(1, 0)
+	case board.Left:
+		return g.TryMove(0, -1)
+	case board.Right:
+		return g.TryMove(0, 1)
 	default:
-		fmt.Println("Unknown command. Type :help")
+		return false
 	}
 }
 
-func (g *Game) Run() {
-	for {
-		terminal.ClearScreen()
-		fmt.Println(g.Board.String())
-		fmt.Println("WASD/arrows move | : commands | q quit")
+func (g *Game) IsWon() bool {
+	return board.IsSolved(g.Board)
+}
 
-		key, err := terminal.ReadKey()
-		if err != nil {
-			fmt.Println("input error:", err)
-			return
-		}
+func (g *Game) Reset() {
+	g.Randomize()
+}
 
-		switch key {
-		case terminal.KeyQuit:
-			return
-		case terminal.KeyCommand:
-			fmt.Print(": ")
-			line, err := terminal.ReadLine()
-			if err != nil {
-				return
-			}
-			g.handleCommand(line)
-			terminal.WaitEnter()
-		default:
-			g.HandleKey(key)
-		}
-	}
+func (g *Game) SetBoard(b board.Board) {
+	g.Board = b
 }
