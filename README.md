@@ -30,16 +30,39 @@ A terminal sliding-puzzle game written in Go. Slide the numbered tiles into orde
 
 ## Install
 
+### Homebrew (macOS / Linux)
+
+Requires [Homebrew](https://brew.sh):
+
+```sh
+brew tap fkvivid/tap
+brew install puzzle8
+```
+
+If Homebrew asks you to trust the tap first:
+
+```sh
+brew trust fkvivid/tap
+brew install puzzle8
+```
+
+Then run `puzzle8` from any terminal.
+
+### Go install
+
+Requires Go on your PATH (`$(go env GOPATH)/bin` must be in `$PATH`):
+
 ```sh
 go install github.com/fkvivid/puzzle8/cmd/puzzle8@latest
 ```
 
-Or clone and build:
+### Build from source
 
 ```sh
 git clone https://github.com/fkvivid/puzzle8
 cd puzzle8
-go build ./cmd/puzzle8
+go build -o puzzle8 ./cmd/puzzle8
+./puzzle8
 ```
 
 ## Usage
