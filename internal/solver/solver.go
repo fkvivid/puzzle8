@@ -42,7 +42,7 @@ func Manhattan(b board.Board) int {
 		}
 
 		goalI := v - 1
-		h += abs(i/board.GridDim-goalI/board.GridDim) + abs(i%GridDim-goalI%GridDim)
+		h += abs(i/board.GridDim-goalI/board.GridDim) + abs(i%board.GridDim-goalI%board.GridDim)
 	}
 
 	return h
@@ -66,7 +66,7 @@ type node struct {
 type pq []*node
 
 func (p pq) Len() int           { return len(p) }
-func (p pq) Less(i, j int) bool { return p[i].pri > p[j].pri }
+func (p pq) Less(i, j int) bool { return p[i].pri < p[j].pri }
 func (p pq) Swap(i, j int)      { p[i], p[j] = p[j], p[i]; p[i].index = i; p[j].index = j }
 func (p *pq) Push(x any)        { n := x.(*node); n.index = len(*p); *p = append(*p, n) }
 func (p *pq) Pop() any          { old := *p; n := old[len(old)-1]; *p = old[:len(old)-1]; return n }
@@ -111,13 +111,15 @@ func solveBFS(start board.Board) Result {
 
 			visited[key] = true
 
-			path := append(append([]board.Dir{}, cur.path...), board.DirDirFromDelta(d[0], d[1]))
+			path := append(append([]board.Dir{}, cur.path...), board.DirFromDelta(d[0], d[1]))
 			if board.IsSolved(next) {
 				return Result{Found: true, Moves: path, Expanded: len(visited)}
 			}
-			queue = append(queue, qnode{states: next, path: path})
+			queue = append(queue, qnode{state: next, path: path})
 		}
 	}
+
+	return Result{Expanded: len(visited)}
 }
 
 func solveBestFirst(start board.Board, algo Algorithm) Result {

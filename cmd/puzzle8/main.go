@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fkvivid/puzzle8//internal/game"
+	"github.com/fkvivid/puzzle8/internal/game"
 	"github.com/fkvivid/puzzle8/internal/solver"
 )
 
